@@ -1,10 +1,10 @@
 export const READING_TOPICS = [
-  { key: 'overview', label: '命格', title: '命格总览', palace: '命宫' },
-  { key: 'love', label: '感情', title: '感情 · 夫妻宫', palace: '夫妻宫' },
-  { key: 'career', label: '事业', title: '事业 · 官禄宫', palace: '官禄宫' },
-  { key: 'wealth', label: '财运', title: '财运 · 财帛宫', palace: '财帛宫' },
-  { key: 'health', label: '健康', title: '健康 · 疾厄宫', palace: '疾厄宫' },
-  { key: 'personality', label: '性格', title: '性格 · 命宫', palace: '命宫' },
+  { key: 'overview', label: '命格', title: '命格总览' },
+  { key: 'love', label: '感情', title: '感情 · 夫妻宫' },
+  { key: 'career', label: '事业', title: '事业 · 官禄宫' },
+  { key: 'wealth', label: '财运', title: '财运 · 财帛宫' },
+  { key: 'health', label: '健康', title: '健康 · 疾厄宫' },
+  { key: 'personality', label: '性格', title: '性格 · 命宫' },
 ] as const;
 
 /** 本宫、对宫、两个三合宫。 */

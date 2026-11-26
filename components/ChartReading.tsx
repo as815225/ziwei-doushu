@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { getSanFangSiZheng, READING_TOPICS } from '@/lib/ziwei/chart-reading';
 import { BRANCHES, STAR_DESCRIPTIONS, STEMS } from '@/lib/ziwei/constants';
+import { TOPIC_PALACE_NAME } from '@/lib/ziwei/db-analysis';
 import type { Palace, ZiweiChart } from '@/lib/ziwei/types';
 
 type ReadingTopic = (typeof READING_TOPICS)[number];
@@ -24,10 +25,17 @@ const PALACE_THEMES: Record<string, string> = {
 
 const majorStarsIn = (palace: Palace) => palace.stars.filter(star => star.type === 'major');
 
+function palaceLabel(name: string): string {
+  if (name === '仆役') return '交友宫';
+  return name.endsWith('宫') ? name : `${name}宫`;
+}
+
 export default function ChartReading({ chart, selectedPalace }: { chart: ZiweiChart; selectedPalace?: Palace | null }) {
   const [topic, setTopic] = useState<ReadingTopic | null>(null);
   const activeTopic = topic ?? (selectedPalace ? null : READING_TOPICS[0]);
-  const palace = activeTopic ? chart.palaces.find(p => p.name === activeTopic.palace) : selectedPalace;
+  const palace = activeTopic
+    ? chart.palaces.find(p => palaceLabel(p.name) === palaceLabel(TOPIC_PALACE_NAME[activeTopic.key]))
+    : selectedPalace;
 
   return (
     <aside aria-label="命盘解读" className="flex flex-col h-[min(44rem,80dvh)] min-h-0 min-w-0 rounded-xl overflow-hidden card-glass">
@@ -64,6 +72,7 @@ export default function ChartReading({ chart, selectedPalace }: { chart: ZiweiCh
 }
 
 function PalaceReading({ chart, palace, topic }: { chart: ZiweiChart; palace: Palace; topic: ReadingTopic | null }) {
+  const name = palaceLabel(palace.name);
   const [, oppositeBranch, ...trineBranches] = getSanFangSiZheng(palace.branch);
   const opposite = chart.palaces.find(p => p.branch === oppositeBranch);
   const trines = chart.palaces.filter(p => trineBranches.includes(p.branch));
@@ -76,8 +85,8 @@ function PalaceReading({ chart, palace, topic }: { chart: ZiweiChart; palace: Pa
   return (
     <div className="space-y-4 text-xs leading-relaxed" style={{ color: 'var(--t-text2)' }}>
       <div>
-        <h3 className="text-base font-medium" style={{ color: 'var(--t-text)' }}>{topic?.title ?? `${palace.name}解读`}</h3>
-        <p className="mt-1">{palace.name}在{STEMS[palace.stem]}{BRANCHES[palace.branch]}。{PALACE_THEMES[palace.name]}</p>
+        <h3 className="text-base font-medium" style={{ color: 'var(--t-text)' }}>{topic?.title ?? `${name}解读`}</h3>
+        <p className="mt-1">{name}在{STEMS[palace.stem]}{BRANCHES[palace.branch]}。{PALACE_THEMES[name]}</p>
         {topic?.key === 'overview' && (
           <p className="mt-1">{chart.wuxingJuName} · 身宫在{BRANCHES[chart.shenGongBranch]}</p>
         )}
@@ -85,7 +94,7 @@ function PalaceReading({ chart, palace, topic }: { chart: ZiweiChart; palace: Pa
 
       <section>
         <h4 className="mb-1 font-medium" style={{ color: 'var(--t-gold)' }}>主星与星性</h4>
-        {borrowedPalace && <p className="mb-1">本宫无主星，传统读法会参照对宫{borrowedPalace.name}的主星。</p>}
+        {borrowedPalace && <p className="mb-1">本宫无主星，传统读法会参照对宫{palaceLabel(borrowedPalace.name)}的主星。</p>}
         {readingStars.length > 0 ? (
           <ul className="space-y-1">
             {readingStars.map(star => (
@@ -111,7 +120,7 @@ function PalaceReading({ chart, palace, topic }: { chart: ZiweiChart; palace: Pa
         <ul className="space-y-1">
           {[...(opposite ? [opposite] : []), ...trines].map(related => (
             <li key={related.branch}>
-              {related.branch === oppositeBranch ? '对宫' : '三合'} · {related.name} · {majorStarsIn(related).map(star => star.name).join('、') || '无主星'}
+              {related.branch === oppositeBranch ? '对宫' : '三合'} · {palaceLabel(related.name)} · {majorStarsIn(related).map(star => star.name).join('、') || '无主星'}
             </li>
           ))}
         </ul>
@@ -120,7 +129,7 @@ function PalaceReading({ chart, palace, topic }: { chart: ZiweiChart; palace: Pa
       {topic?.key === 'overview' && currentDaXian && (
         <section>
           <h4 className="mb-1 font-medium" style={{ color: 'var(--t-gold)' }}>当前大限</h4>
-          <p>{currentDaXian.palaceName} · {currentDaXian.startAge}–{currentDaXian.endAge} 虚岁</p>
+          <p>{palaceLabel(currentDaXian.palaceName)} · {currentDaXian.startAge}–{currentDaXian.endAge} 虚岁</p>
         </section>
       )}
     </div>
