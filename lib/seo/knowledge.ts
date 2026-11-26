@@ -131,13 +131,15 @@ export function getKnowledge(star: string, topic: TopicKey): KnowledgeData {
   };
 }
 
-/** 生成所有 14×13 组合（用于 generateStaticParams） */
+/** 列出已有论断或公开主星简介的页面。 */
 export function getAllKnowledgeRoutes() {
   const routes: { star: string; slug: string; topic: TopicKey }[] = [];
   for (const star of ALL_STARS) {
     for (const topic of ALL_TOPICS) {
       const data = getKnowledge(star, topic);
-      if (data.exists) routes.push({ star, slug: STAR_TO_SLUG[star], topic });
+      if (data.exists || (topic === 'overview' && STAR_BRIEF_SEO[star])) {
+        routes.push({ star, slug: STAR_TO_SLUG[star], topic });
+      }
     }
   }
   return routes;
