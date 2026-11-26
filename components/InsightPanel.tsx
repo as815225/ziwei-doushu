@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { READING_TOPICS } from '@/lib/ziwei/chart-reading';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
 import ChartReading from './ChartReading';
+import ChartQuestions from './ChartQuestions';
 import type { TimeView } from './TimeNav';
 
 interface Message {
@@ -176,9 +177,15 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
 }
 
 export default function InsightPanel(props: InsightPanelProps) {
-  if (process.env.NEXT_PUBLIC_PAGES_STATIC_EXPORT === '1') {
+  const endpoint = process.env.NEXT_PUBLIC_INTERPRET_API_URL?.trim();
+  if (process.env.NEXT_PUBLIC_PAGES_STATIC_EXPORT === '1' || endpoint) {
     const { chart, selectedPalace } = props;
-    return <ChartReading key={selectedPalace?.branch} chart={chart} selectedPalace={selectedPalace} />;
+    return (
+      <div className="min-w-0 space-y-4">
+        <ChartQuestions endpoint={endpoint} chart={chart} selectedPalace={selectedPalace} />
+        <ChartReading key={selectedPalace?.branch} chart={chart} selectedPalace={selectedPalace} />
+      </div>
+    );
   }
 
   return <StreamingInsightPanel {...props} />;

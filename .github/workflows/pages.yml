@@ -31,6 +31,7 @@ jobs:
           PAGES_STATIC_EXPORT: '1'
           NEXT_PUBLIC_BASE_PATH: ${{ steps.pages.outputs.base_path }}
           NEXT_PUBLIC_SITE_URL: ${{ steps.pages.outputs.base_url }}
+          NEXT_PUBLIC_INTERPRET_API_URL: ${{ vars.NEXT_PUBLIC_INTERPRET_API_URL }}
       - run: cp LICENSE out/LICENSE
       - uses: actions/upload-pages-artifact@v3
         with:

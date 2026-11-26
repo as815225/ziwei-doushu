@@ -455,13 +455,13 @@ Expand-Archive combined.zip
 
 ```bash
 # 克隆
-git clone https://github.com/Renhuai123/ziwei-doushu.git
+git clone https://github.com/as815225/ziwei-doushu.git
 cd ziwei-doushu
 
 # 安装依赖
 npm install
 
-# 配置环境变量（只看排盘可以跳过；AI 配置仅在你自己实现了 /api/* 接口时才用得上）
+# 設定環境變數（只用排盤或基礎解讀可以跳過）
 cp .env.example .env.local
 
 # 启动开发服务器
@@ -477,7 +477,15 @@ npm test            # 排盘引擎回归（768 盘 × 紫微铁律、夏令时�
 
 每次 push 與 PR 都會在 GitHub Actions 上跑同一套（見 [`.github/workflows/ci.yml`](./.github/workflows/ci.yml)）。
 
-> **注意：開源版不含後端 API 路由。**排盤、命盤展示、合盤起盤都在瀏覽器裡用本倉庫的引擎完成，**不需要任何 API Key**。AI 解讀（`/api/interpret`）和合盤 AI 分析（`/api/heming`）需要你自己實現接口；沒實現之前，這兩處會直接提示「開源版不含該接口」，配置 API Key 也不會變成可用（#30 就是這個原因）。
+排盤、基礎解讀和合盤起盤都在瀏覽器執行。此 fork 提供獨立的 AI 自由追問服務，原站的合盤 AI 分析仍需另接 `/api/heming`。
+
+### AI 自由追問
+
+1. 使用 Node.js 22.9 或更新版本。依 `.env.example` 在 `.env.local` 設定模型金鑰、`INTERPRET_ACCESS_TOKEN` 和 `INTERPRET_ALLOWED_ORIGINS`。通行碼用於限制誰可送出請求，應與模型金鑰分開產生及保存。
+2. 設定 `NEXT_PUBLIC_INTERPRET_API_URL=http://127.0.0.1:8787/api/interpret`。分別啟動 `npm run interpret` 和 `npm run dev`。在 `http://localhost:3000/chart/` 起盤後，以通行碼送出自己的問題。
+3. 正式站需要可從瀏覽器存取的 Node.js 主機。在主機端設定模型金鑰、通行碼和 `INTERPRET_ALLOWED_ORIGINS=https://as815225.github.io`，並由 HTTPS 代理轉發 `/api/interpret`。在 GitHub 的 Actions repository variables 設定 `NEXT_PUBLIC_INTERPRET_API_URL` 為完整 HTTPS 端點，再執行 Pages 部署。
+
+每次提問只傳送目前的命盤摘要、問題與最近四輪對話。對話和通行碼只保留在目前頁面，服務本身只記錄啟動訊息。主機或模型服務的日誌與資料保存依各自設定管理。
 
 ---
 
