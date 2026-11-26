@@ -1,7 +1,9 @@
 'use client';
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { READING_TOPICS } from '@/lib/ziwei/chart-reading';
 import type { ZiweiChart, Palace } from '@/lib/ziwei/types';
+import ChartReading from './ChartReading';
 import type { TimeView } from './TimeNav';
 
 interface Message {
@@ -21,15 +23,6 @@ interface InsightPanelProps {
   selectedPalace?: Palace | null;
   selectedSiHua?: SelectedSiHua | null;
 }
-
-const TOPICS = [
-  { key: 'overview',     label: '命格' },
-  { key: 'love',        label: '感情' },
-  { key: 'career',      label: '事业' },
-  { key: 'wealth',      label: '财运' },
-  { key: 'health',      label: '健康' },
-  { key: 'personality', label: '性格' },
-] as const;
 
 const TOPIC_PROMPTS: Record<string, string> = {
   overview: `请生成命格总览，按以下结构输出：
@@ -182,7 +175,16 @@ function AiContent({ text, streaming }: { text: string; streaming?: boolean }) {
   );
 }
 
-export default function InsightPanel({ chart, selectedPalace, selectedSiHua }: InsightPanelProps) {
+export default function InsightPanel(props: InsightPanelProps) {
+  if (process.env.NEXT_PUBLIC_PAGES_STATIC_EXPORT === '1') {
+    const { chart, selectedPalace } = props;
+    return <ChartReading key={selectedPalace?.branch} chart={chart} selectedPalace={selectedPalace} />;
+  }
+
+  return <StreamingInsightPanel {...props} />;
+}
+
+function StreamingInsightPanel({ chart, selectedPalace, selectedSiHua }: InsightPanelProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -352,7 +354,7 @@ ${selectedSiHua.starName}化${selectedSiHua.siHua}落在【${palaceName}】，�
       {/* ── Topic buttons ── */}
       <div className="flex-shrink-0 px-2 pt-2.5 pb-2" style={{ borderBottom: '1px solid var(--t-border)' }}>
         <div className="grid grid-cols-6 gap-1">
-          {TOPICS.map(t => {
+          {READING_TOPICS.map(t => {
             const isActive = activeTopic === t.key;
             return (
               <button

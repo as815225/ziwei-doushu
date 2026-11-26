@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { ZiweiChart, Palace, Star } from '@/lib/ziwei/types';
 import { BRANCHES, STEMS } from '@/lib/ziwei/constants';
+import { getSanFangSiZheng } from '@/lib/ziwei/chart-reading';
 import { boshiShenName, jiangQianShenName, suiQianShenName } from '@/lib/ziwei/shier-shen';
 import PalaceCell from './PalaceCell';
 import TimeNav, { type TimeView, getYearStemIndex, buildSiHuaOverlay } from './TimeNav';
@@ -10,7 +11,7 @@ import TimeNav, { type TimeView, getYearStemIndex, buildSiHuaOverlay } from './T
 interface ChartBoardProps {
   chart: ZiweiChart;
   onStarSelect?: (star: Star, palace: Palace) => void;
-  onPalaceSelect?: (palace: Palace) => void;
+  onPalaceSelect?: (palace: Palace | null) => void;
   onSiHuaClick?: (starName: string, siHua: string, view: TimeView) => void;
 }
 
@@ -39,16 +40,6 @@ const CLOCKWISE_INDEX: Record<number, number> = {
 
 function sortClockwise(branches: number[]): number[] {
   return [...branches].sort((a, b) => CLOCKWISE_INDEX[a] - CLOCKWISE_INDEX[b]);
-}
-
-/** 三方四正：本宫 + 对宫 + 两个三合宫 */
-function getSanFangSiZheng(branch: number): [number, number, number, number] {
-  return [
-    branch,
-    (branch + 6) % 12,   // 对宫
-    (branch + 4) % 12,   // 三合1
-    (branch + 8) % 12,   // 三合2
-  ];
 }
 
 const ANIMATION_ORDER = [5, 6, 7, 8, 9, 10, 11, 0, 1, 2, 3, 4];
@@ -83,12 +74,9 @@ export default function ChartBoard({ chart, onStarSelect, onPalaceSelect, onSiHu
     : chart.lunarInfo.yearBranch;
 
   const handlePalaceClick = (branch: number) => {
-    const isDeselecting = selectedBranch === branch;
-    setSelectedBranch(prev => prev === branch ? null : branch);
-    if (!isDeselecting) {
-      const palace = palaceMap[branch];
-      if (palace) onPalaceSelect?.(palace);
-    }
+    const nextBranch = selectedBranch === branch ? null : branch;
+    setSelectedBranch(nextBranch);
+    onPalaceSelect?.(nextBranch === null ? null : palaceMap[nextBranch]);
   };
 
   // 三方四正
